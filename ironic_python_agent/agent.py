@@ -318,10 +318,10 @@ class IronicPythonAgent(base.ExecuteCommandMixin):
             ironic_host = urlparse.urlparse(api_url).hostname
             # Try resolving it in case it's not an IP address
             try:
-                ironic_host = socket.gethostbyname(ironic_host)
+                addrs = socket.getaddrinfo(ironic_host, 0)
             except socket.gaierror:
                 LOG.debug('Could not resolve %s, maybe no DNS', ironic_host)
-            ips.append(ironic_host)
+            ips.extend(addr for _, _, _, _, (addr, *_) in addrs)
 
         for attempt in range(self.ip_lookup_attempts):
             for ironic_host in ips:
